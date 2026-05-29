@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Gym Trainer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>AI Gym Trainer</h1>
+
+    <!-- Chat Section -->
+    <div class="section">
+      <h2>Your AI Trainer</h2>
+      <div id="chat-box"></div>
+      <div class="chat-input">
+        <input type="text" id="user-input" placeholder="Ask your trainer anything..." />
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+
+    <!-- Log Workout Section -->
+    <div class="section">
+      <h2>Log Workout</h2>
+      <input type="text" id="exercise" placeholder="Exercise name" />
+      <input type="number" id="sets" placeholder="Sets" />
+      <input type="number" id="reps" placeholder="Reps" />
+      <input type="number" id="weight" placeholder="Weight (kg)" />
+      <button onclick="logWorkout()">Log Workout</button>
+    </div>
+
+    <!-- Workout History -->
+    <div class="section">
+      <h2>Workout History</h2>
+      <button onclick="loadWorkouts()">Refresh</button>
+      <div id="workout-list"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
