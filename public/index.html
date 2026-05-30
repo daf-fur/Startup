@@ -1,43 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Gym Trainer</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800;900&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-  <div class="container">
-    <h1>AI Gym Trainer</h1>
-
-    <!-- Chat Section -->
-    <div class="section">
-      <h2>Your AI Trainer</h2>
-      <div id="chat-box"></div>
-      <div class="chat-input">
-        <input type="text" id="user-input" placeholder="Ask your trainer anything..." />
-        <button onclick="sendMessage()">Send</button>
+  <main class="page-shell">
+    <section class="hero-panel">
+      <div class="hero-copy">
+        <span class="eyebrow">Live coaching that moves with you</span>
+        <h1>Train smarter,<br />not harder.</h1>
+        <p class="hero-description">A gym companion that blends real-time guidance and workout memory so every set lands
+          with intent and every recovery day feels earned.</p>
+        <div class="hero-pill-row">
+          <span>Adaptive prompts</span>
+          <span>One-tap logging</span>
+          <span>Session insight</span>
+        </div>
       </div>
-    </div>
-
-    <!-- Log Workout Section -->
-    <div class="section">
-      <h2>Log Workout</h2>
-      <input type="text" id="exercise" placeholder="Exercise name" />
-      <input type="number" id="sets" placeholder="Sets" />
-      <input type="number" id="reps" placeholder="Reps" />
-      <input type="number" id="weight" placeholder="Weight (kg)" />
-      <button onclick="logWorkout()">Log Workout</button>
-    </div>
-
-    <!-- Workout History -->
-    <div class="section">
-      <h2>Workout History</h2>
-      <button onclick="loadWorkouts()">Refresh</button>
-      <div id="workout-list"></div>
-    </div>
-  </div>
-
+      <div class="hero-graphic" aria-hidden="true">
+        <div class="hero-shape"></div>
+        <svg class="hero-overlay" viewBox="0 0 360 360" aria-hidden="true">
+          <defs>
+            <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="rgba(239,167,74,0.45)" />
+              <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+            </linearGradient>
+          </defs>
+          <circle cx="180" cy="180" r="128" fill="none" stroke="rgba(239,167,74,0.18)" stroke-width="2" />
+          <circle cx="180" cy="180" r="86" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1.5"
+            stroke-dasharray="6 10" />
+          <path d="M84 210 C124 160 160 120 214 96" fill="none" stroke="url(#glow)" stroke-width="3"
+            stroke-linecap="round" opacity="0.95" />
+          <circle cx="202" cy="95" r="6" fill="rgba(239,167,74,0.95)" />
+          <circle cx="124" cy="212" r="4" fill="rgba(255,255,255,0.7)" />
+        </svg>
+        <div class="hero-chart">
+          <div class="chart-title">Performance pulse</div>
+          <div class="metric metric-large">
+            <span>82</span>
+            <small>focus</small>
+          </div>
+          <div class="metric-group">
+            <div class="metric card">
+              <span>4.6</span>
+              <small>RPE</small>
+            </div>
+            <div class="metric card">
+              <span>32%</span>
+              <small>load</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="workspace">
+      <article class="panel chat-panel">
+        <div class="panel-head">
+          <div>
+            <span class="panel-eyebrow">Coach chat</span>
+            <h2>Ask your trainer</h2>
+          </div>
+          <span class="status-badge">Ready</span>
+        </div>
+        <div id="chat-box" class="chat-box" aria-live="polite"></div>
+        <form id="chat-form" class="chat-input">
+          <label class="sr-only" for="user-input">Trainer question</label>
+          <input type="text" id="user-input" placeholder="What should I focus on next?" autocomplete="off" />
+          <button type="submit" id="send-button">Send</button>
+        </form>
+      </article>
+      <article class="panel workout-panel">
+        <div class="panel-head">
+          <div>
+            <span class="panel-eyebrow">Session log</span>
+            <h2>Track every set</h2>
+          </div>
+          <span class="panel-pill">Quick entry</span>
+        </div>
+        <form id="workout-form" class="workout-form">
+          <div class="field-group">
+            <label class="sr-only" for="exercise">Exercise name</label>
+            <input id="exercise" name="exercise" placeholder="Exercise name" />
+            <label class="sr-only" for="sets">Sets</label>
+            <input id="sets" name="sets" type="number" min="1" placeholder="Sets" />
+          </div>
+          <div class="field-group">
+            <label class="sr-only" for="reps">Reps</label>
+            <input id="reps" name="reps" type="number" min="1" placeholder="Reps" />
+            <label class="sr-only" for="weight">Weight (kg)</label>
+            <input id="weight" name="weight" type="number" min="0" placeholder="Weight (kg)" />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="primary-button">Log workout</button>
+            <button type="button" class="ghost-button" id="clear-workout">Clear</button>
+          </div>
+          <div id="workout-status" class="message-line" aria-live="polite"></div>
+        </form>
+      </article>
+      <article class="panel history-panel">
+        <div class="panel-head">
+          <div>
+            <span class="panel-eyebrow">Session archive</span>
+            <h2>Workout history</h2>
+          </div>
+          <button type="button" class="ghost-button compact" id="refresh-button">Refresh</button>
+        </div>
+        <div id="workout-list" class="history-list"></div>
+      </article>
+    </section>
+  </main>
   <script src="app.js"></script>
 </body>
+
 </html>
