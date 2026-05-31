@@ -1,44 +1,85 @@
-require('dotenv').config();
-const express = require('express');
-const Anthropic = require('@anthropic-ai/sdk');
-const db = require('./database');
+require("dotenv").config();
+const express = require("express");
+const Anthropic = require("@anthropic-ai/sdk");
+const db = require("./database");
 
 const app = express();
-const client = new Anthropic();
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static("public"));
 
-// AI chat endpoint
-app.post('/api/chat', async (req, res) => {
-  const { message } = req.body;
+const systemPrompt = `You are an expert personal trainer specializing in beginners.
+Give clear, safe, motivating advice. When suggesting workouts, always format exercises as a numbered list with sets and reps.`;
 
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 1024,
-    system: `You are an expert personal trainer specializing in beginners. 
-             Give clear, safe, motivating advice. When suggesting workouts, 
-             always format exercises as a numbered list with sets and reps.`,
-    messages: [{ role: 'user', content: message }]
-  });
+function createFallbackReply(message) {
+  const lower = (message || "").toLowerCase();
+  if (lower.includes("warm") || lower.includes("mobility") || lower.includes("stretch")) {
+    return `Start with a gentle warm-up:\n1) Bodyweight squats\n2) Arm circles\n3) Hip hinges\n\nKeep the movement smooth and listen to how your body feels.`;
+  }
+  if (lower.includes("strength") || lower.includes("lift") || lower.includes("heavy")) {
+    return `Focus on compound strength:\n1) Squats 3x8\n2) Push presses 3x8\n3) Deadlifts 3x6\n\nUse a weight that feels challenging but controlled.`;
+  }
+  if (lower.includes("recovery") || lower.includes("rest") || lower.includes("sore")) {
+    return `Prioritize recovery today:\n1) Light mobility work\n2) Foam rolling or stretching\n3) Hydration and sleep\n\nKeep intensity low and let your body bounce back.`;
+  }
+  if (lower.includes("today") || lower.includes("next") || lower.includes("routine")) {
+    return `Try a balanced session:\n1) Dynamic warm-up\n2) 3 sets of a major lift\n3) Accessory work for your weak points\n\nFinish with a short cooldown.`;
+  }
+  return `Keep it simple: choose one movement, focus on good form, and stay consistent. If you want a workout plan, ask for a beginner-friendly routine.`;
+}
 
-  res.json({ reply: response.content[0].text });
+async function getTrainerReply(message, history = []) {
+  if (!message) {
+    return "Tell me what you want help with, and I will guide you through it.";
+  }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return createFallbackReply(message);
+  }
+
+  try {
+    const messages = [...history, { role: "user", content: message }];
+    const response = await client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages,
+    });
+    return response.content?.[0]?.text || createFallbackReply(message);
+  } catch (error) {
+    console.error("AI chat failure:", error?.message || error);
+    return createFallbackReply(message);
+  }
+}
+
+app.post("/api/chat", async (req, res) => {
+  const { message, history } = req.body;
+  if (!message || !message.trim()) {
+    return res.status(400).json({ error: "Message is required." });
+  }
+  const safeHistory = Array.isArray(history) ? history : [];
+  const reply = await getTrainerReply(message.trim(), safeHistory);
+  res.json({ reply });
 });
 
-// Log a workout
-app.post('/api/workout', (req, res) => {
+app.post("/api/workout", (req, res) => {
   const { exercise, sets, reps, weight } = req.body;
-  const stmt = db.prepare('INSERT INTO workouts (exercise, sets, reps, weight) VALUES (?, ?, ?, ?)');
+  const stmt = db.prepare(
+    "INSERT INTO workouts (exercise, sets, reps, weight) VALUES (?, ?, ?, ?)"
+  );
   stmt.run(exercise, sets, reps, weight);
   res.json({ success: true });
 });
 
-// Get all workouts
-app.get('/api/workouts', (req, res) => {
-  const workouts = db.prepare('SELECT * FROM workouts ORDER BY date DESC').all();
+app.get("/api/workouts", (req, res) => {
+  const workouts = db
+    .prepare("SELECT * FROM workouts ORDER BY date DESC")
+    .all();
   res.json(workouts);
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server running on http://localhost:${process.env.PORT}`);
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
 });

@@ -6,6 +6,19 @@ const sendButton = document.getElementById("send-button");
 const refreshButton = document.getElementById("refresh-button");
 const workoutStatus = document.getElementById("workout-status");
 const clearWorkout = document.getElementById("clear-workout");
+const clearChat = document.getElementById("clear-chat");
+
+let conversationHistory = [];
+
+function escapeHtml(text) {
+  const span = document.createElement("span");
+  span.textContent = text;
+  return span.innerHTML;
+}
+
+function formatReply(text) {
+  return escapeHtml(text).replace(/\n/g, "<br>");
+}
 
 chatForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -19,6 +32,11 @@ workoutForm.addEventListener("submit", async (event) => {
 
 refreshButton.addEventListener("click", loadWorkouts);
 clearWorkout.addEventListener("click", () => workoutForm.reset());
+clearChat.addEventListener("click", () => {
+  chatBox.innerHTML = "";
+  conversationHistory = [];
+  userInput.focus();
+});
 
 function setButtonState(button, isDisabled) {
   button.disabled = isDisabled;
@@ -31,6 +49,7 @@ function appendMessage(content, role) {
   bubble.innerHTML = content;
   chatBox.appendChild(bubble);
   chatBox.scrollTop = chatBox.scrollHeight;
+  return bubble;
 }
 
 function showWorkoutStatus(message, status = "info") {
@@ -50,25 +69,40 @@ async function handleChat() {
     return;
   }
 
-  appendMessage(`<strong>You</strong><em>${message}</em>`, "user");
+  appendMessage(`<strong>You</strong><em>${escapeHtml(message)}</em>`, "user");
   userInput.value = "";
   setButtonState(sendButton, true);
+  userInput.disabled = true;
+
+  const trainerBubble = appendMessage(
+    `<strong>Trainer</strong><em>Thinking…</em>`,
+    "trainer"
+  );
 
   try {
     const response = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, history: conversationHistory }),
     });
+
+    if (!response.ok) {
+      throw new Error(`Server returned ${response.status}`);
+    }
+
     const data = await response.json();
-    appendMessage(`<strong>Trainer</strong><em>${data.reply}</em>`, "trainer");
+    const reply = data.reply || "Sorry, I couldn't generate a response right now.";
+
+    conversationHistory.push({ role: "user", content: message });
+    conversationHistory.push({ role: "assistant", content: reply });
+
+    trainerBubble.innerHTML = `<strong>Trainer</strong><em>${formatReply(reply)}</em>`;
   } catch (error) {
-    appendMessage(
-      "<strong>Trainer</strong><em>Sorry, the coach is offline. Try again in a moment.</em>",
-      "trainer",
-    );
+    trainerBubble.innerHTML = `<strong>Trainer</strong><em>Sorry, the coach is offline. Try again in a moment.</em>`;
   } finally {
     setButtonState(sendButton, false);
+    userInput.disabled = false;
+    userInput.focus();
   }
 }
 
