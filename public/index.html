@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Gym Trainer</title>
+  <title>Gym Companion</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -12,63 +12,77 @@
   <main class="page-shell">
     <section class="hero-panel">
       <div class="hero-copy">
-        <span class="eyebrow">Live coaching that moves with you</span>
-        <h1>Train smarter,<br />not harder.</h1>
-        <p class="hero-description">A gym companion that blends real-time guidance and workout memory so every set lands
-          with intent and every recovery day feels earned.</p>
+        <p class="eyebrow">Gym companion</p>
+        <h1>Simple tracking for stronger training.</h1>
+        <p class="hero-description">A no-fluff workout dashboard that keeps sets, notes, and session history organized
+          so you can focus on progress.</p>
         <div class="hero-pill-row">
-          <span>Adaptive prompts</span>
-          <span>One-tap logging</span>
-          <span>Session insight</span>
+          <span>Effort tracking</span>
+          <span>Clear cues</span>
+          <span>Session history</span>
         </div>
       </div>
-      <div class="hero-graphic" aria-hidden="true">
-        <div class="hero-shape"></div>
-        <svg class="hero-overlay" viewBox="0 0 360 360" aria-hidden="true">
-          <defs>
-            <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="rgba(239,167,74,0.45)" />
-              <stop offset="100%" stop-color="rgba(255,255,255,0)" />
-            </linearGradient>
-          </defs>
-          <circle cx="180" cy="180" r="128" fill="none" stroke="rgba(239,167,74,0.18)" stroke-width="2" />
-          <circle cx="180" cy="180" r="86" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1.5"
-            stroke-dasharray="6 10" />
-          <path d="M84 210 C124 160 160 120 214 96" fill="none" stroke="url(#glow)" stroke-width="3"
-            stroke-linecap="round" opacity="0.95" />
-          <circle cx="202" cy="95" r="6" fill="rgba(239,167,74,0.95)" />
-          <circle cx="124" cy="212" r="4" fill="rgba(255,255,255,0.7)" />
-        </svg>
-        <div class="hero-chart">
-          <div class="chart-title">Performance pulse</div>
-          <div class="metric metric-large">
-            <span>82</span>
-            <small>focus</small>
-          </div>
-          <div class="metric-group">
-            <div class="metric card">
-              <span>4.6</span>
-              <small>RPE</small>
-            </div>
-            <div class="metric card">
-              <span>32%</span>
-              <small>load</small>
-            </div>
-          </div>
-        </div>
+      <div class="hero-note">
+        <p class="note-title">Keep progress simple and visible.</p>
+        <p class="note-copy">Capture each set with reps and weight so your next session starts from what you actually
+          did, not from what you remember.</p>
       </div>
     </section>
+
     <section class="workspace">
-      <article class="panel chat-panel">
+      <article class="panel profile-panel">
         <div class="panel-head">
           <div>
-            <span class="panel-eyebrow">Coach chat</span>
-            <h2>Ask your trainer</h2>
+            <p class="panel-eyebrow">Your profile</p>
+            <h2>About you</h2>
           </div>
+        </div>
+        <form id="profile-form" class="profile-form">
+          <div class="field-group">
+            <div class="profile-field">
+              <label for="profile-name">Name</label>
+              <input id="profile-name" name="name" placeholder="Your name" autocomplete="name" />
+            </div>
+            <div class="profile-field">
+              <label for="profile-age">Age</label>
+              <input id="profile-age" name="age" type="number" min="10" max="100" placeholder="e.g. 25" />
+            </div>
+          </div>
+          <div class="field-group">
+            <div class="profile-field">
+              <label for="profile-goal">Goal</label>
+              <select id="profile-goal" name="goal">
+                <option value="">Select a goal…</option>
+                <option value="lose_weight">Lose weight</option>
+                <option value="build_muscle">Build muscle</option>
+                <option value="endurance">Improve endurance</option>
+                <option value="general">General fitness</option>
+              </select>
+            </div>
+            <div class="profile-field">
+              <label for="profile-level">Experience level</label>
+              <select id="profile-level" name="level">
+                <option value="">Select level…</option>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="primary-button compact">Save profile</button>
+            <div id="profile-status" class="message-line"></div>
+          </div>
+        </form>
+      </article>
+
+      <article class="panel prompt-panel">
+        <div class="panel-head">
           <div>
-            <button type="button" class="ghost-button compact" id="clear-chat">Clear chat</button>
-            <span class="status-badge">Ready</span>
+            <p class="panel-eyebrow">Trainer prompt</p>
+            <h2>Ask a coaching question</h2>
           </div>
+          <button type="button" class="ghost-button compact" id="clear-chat">Clear</button>
         </div>
         <div id="chat-box" class="chat-box" aria-live="polite"></div>
         <form id="chat-form" class="chat-input">
@@ -77,11 +91,12 @@
           <button type="submit" id="send-button">Send</button>
         </form>
       </article>
+
       <article class="panel workout-panel">
         <div class="panel-head">
           <div>
-            <span class="panel-eyebrow">Session log</span>
-            <h2>Track every set</h2>
+            <p class="panel-eyebrow">Workout log</p>
+            <h2>Record each set</h2>
           </div>
           <span class="panel-pill">Quick entry</span>
         </div>
@@ -93,10 +108,15 @@
             <input id="sets" name="sets" type="number" min="1" placeholder="Sets" />
           </div>
           <div class="field-group">
-            <label class="sr-only" for="reps">Reps</label>
-            <input id="reps" name="reps" type="number" min="1" placeholder="Reps" />
-            <label class="sr-only" for="weight">Weight (kg)</label>
-            <input id="weight" name="weight" type="number" min="0" placeholder="Weight (kg)" />
+            <div class="input-group">
+              <label class="sr-only" for="reps">Reps per set</label>
+              <input id="reps" name="reps" type="text" placeholder="Reps 10 / 8 / 6" />
+              <small class="field-help">Enter each set pattern with slashes or commas, for example 10 / 8 / 6.</small>
+            </div>
+            <div class="input-group">
+              <label class="sr-only" for="weight">Weight (lbs)</label>
+              <input id="weight" name="weight" type="number" min="0" placeholder="Weight (lbs)" />
+            </div>
           </div>
           <div class="form-actions">
             <button type="submit" class="primary-button">Log workout</button>
@@ -105,18 +125,33 @@
           <div id="workout-status" class="message-line" aria-live="polite"></div>
         </form>
       </article>
+
       <article class="panel history-panel">
         <div class="panel-head">
           <div>
-            <span class="panel-eyebrow">Session archive</span>
-            <h2>Workout history</h2>
+            <p class="panel-eyebrow">Session archive</p>
+            <h2>Recent workouts</h2>
           </div>
           <button type="button" class="ghost-button compact" id="refresh-button">Refresh</button>
+        </div>
+        <div class="chart-section" id="chart-section" hidden>
+          <div class="chart-controls">
+            <label for="chart-exercise" class="sr-only">Select exercise</label>
+            <select id="chart-exercise">
+              <option value="">View progress for an exercise…</option>
+            </select>
+          </div>
+          <div class="chart-empty-state" id="chart-empty-state">Select an exercise to see weight progress over time.
+          </div>
+          <div class="chart-wrap" id="chart-wrap" hidden>
+            <canvas id="progress-chart"></canvas>
+          </div>
         </div>
         <div id="workout-list" class="history-list"></div>
       </article>
     </section>
   </main>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="app.js"></script>
 </body>
 

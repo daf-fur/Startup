@@ -12,6 +12,13 @@ app.use(express.static("public"));
 const systemPrompt = `You are an expert personal trainer specializing in beginners.
 Give clear, safe, motivating advice. When suggesting workouts, always format exercises as a numbered list with sets and reps.`;
 
+const goalLabels = {
+  lose_weight: "lose weight",
+  build_muscle: "build muscle",
+  endurance: "improve endurance",
+  general: "general fitness",
+};
+
 function createFallbackReply(message) {
   const lower = (message || "").toLowerCase();
   if (lower.includes("warm") || lower.includes("mobility") || lower.includes("stretch")) {
@@ -29,21 +36,31 @@ function createFallbackReply(message) {
   return `Keep it simple: choose one movement, focus on good form, and stay consistent. If you want a workout plan, ask for a beginner-friendly routine.`;
 }
 
-async function getTrainerReply(message, history = []) {
-  if (!message) {
-    return "Tell me what you want help with, and I will guide you through it.";
+function buildSystemPrompt(profile) {
+  let prompt = systemPrompt;
+  if (profile) {
+    const parts = [];
+    if (profile.name) parts.push(`Name: ${profile.name}`);
+    if (profile.age) parts.push(`Age: ${profile.age}`);
+    if (profile.level) parts.push(`Experience: ${profile.level}`);
+    if (profile.goal) parts.push(`Goal: ${goalLabels[profile.goal] || profile.goal}`);
+    if (parts.length > 0) {
+      prompt += `\n\nTrainee profile — ${parts.join(", ")}. Tailor all advice to this person specifically.`;
+    }
   }
+  return prompt;
+}
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return createFallbackReply(message);
-  }
+async function getTrainerReply(message, history = [], profile = null) {
+  if (!message) return "Tell me what you want help with, and I will guide you through it.";
+  if (!process.env.ANTHROPIC_API_KEY) return createFallbackReply(message);
 
   try {
     const messages = [...history, { role: "user", content: message }];
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 1024,
-      system: systemPrompt,
+      system: buildSystemPrompt(profile),
       messages,
     });
     return response.content?.[0]?.text || createFallbackReply(message);
@@ -54,28 +71,28 @@ async function getTrainerReply(message, history = []) {
 }
 
 app.post("/api/chat", async (req, res) => {
-  const { message, history } = req.body;
+  const { message, history, profile } = req.body;
   if (!message || !message.trim()) {
     return res.status(400).json({ error: "Message is required." });
   }
   const safeHistory = Array.isArray(history) ? history : [];
-  const reply = await getTrainerReply(message.trim(), safeHistory);
+  const reply = await getTrainerReply(message.trim(), safeHistory, profile || null);
   res.json({ reply });
 });
 
 app.post("/api/workout", (req, res) => {
   const { exercise, sets, reps, weight } = req.body;
-  const stmt = db.prepare(
-    "INSERT INTO workouts (exercise, sets, reps, weight) VALUES (?, ?, ?, ?)"
-  );
-  stmt.run(exercise, sets, reps, weight);
+  db.prepare("INSERT INTO workouts (exercise, sets, reps, weight) VALUES (?, ?, ?, ?)").run(exercise, sets, reps, weight);
+  res.json({ success: true });
+});
+
+app.delete("/api/workout/:id", (req, res) => {
+  db.prepare("DELETE FROM workouts WHERE id = ?").run(req.params.id);
   res.json({ success: true });
 });
 
 app.get("/api/workouts", (req, res) => {
-  const workouts = db
-    .prepare("SELECT * FROM workouts ORDER BY date DESC")
-    .all();
+  const workouts = db.prepare("SELECT * FROM workouts ORDER BY date DESC").all();
   res.json(workouts);
 });
 
