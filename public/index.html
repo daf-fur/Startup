@@ -9,7 +9,34 @@
 </head>
 
 <body>
-  <main class="page-shell">
+
+  <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-card panel">
+      <div class="auth-header">
+        <p class="eyebrow">Gym Companion</p>
+        <h1 class="auth-title">Track your progress.</h1>
+        <p class="auth-sub">Guided by AI, built around you.</p>
+      </div>
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" id="tab-login">Log in</button>
+        <button type="button" class="auth-tab" id="tab-signup">Sign up</button>
+      </div>
+      <form id="auth-form" class="auth-form" novalidate>
+        <div class="auth-field">
+          <label for="auth-email">Email</label>
+          <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email" />
+        </div>
+        <div class="auth-field">
+          <label for="auth-password">Password</label>
+          <input type="password" id="auth-password" placeholder="Password (min 8 characters)" autocomplete="current-password" />
+        </div>
+        <p id="auth-error" class="auth-error" hidden></p>
+        <button type="submit" class="primary-button" id="auth-submit">Log in</button>
+      </form>
+    </div>
+  </div>
+
+  <main class="page-shell" id="main-app" hidden>
     <section class="hero-panel">
       <div class="hero-copy">
         <p class="eyebrow">Gym companion</p>
@@ -36,6 +63,7 @@
             <p class="panel-eyebrow">Your profile</p>
             <h2>About you</h2>
           </div>
+          <button type="button" class="ghost-button compact" id="logout-btn">Log out</button>
         </div>
         <form id="profile-form" class="profile-form">
           <div class="field-group">
@@ -82,7 +110,10 @@
             <p class="panel-eyebrow">Trainer prompt</p>
             <h2>Ask a coaching question</h2>
           </div>
-          <button type="button" class="ghost-button compact" id="clear-chat">Clear</button>
+          <div class="panel-head-actions">
+            <span id="message-counter" class="message-counter"></span>
+            <button type="button" class="ghost-button compact" id="clear-chat">Clear</button>
+          </div>
         </div>
         <div id="chat-box" class="chat-box" aria-live="polite"></div>
         <form id="chat-form" class="chat-input">
@@ -141,8 +172,7 @@
               <option value="">View progress for an exercise…</option>
             </select>
           </div>
-          <div class="chart-empty-state" id="chart-empty-state">Select an exercise to see weight progress over time.
-          </div>
+          <div class="chart-empty-state" id="chart-empty-state">Select an exercise to see weight progress over time.</div>
           <div class="chart-wrap" id="chart-wrap" hidden>
             <canvas id="progress-chart"></canvas>
           </div>
@@ -151,6 +181,7 @@
       </article>
     </section>
   </main>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="app.js"></script>
 </body>

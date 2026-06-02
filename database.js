@@ -1,35 +1,58 @@
 const Database = require("better-sqlite3");
 const db = new Database("gym.db");
 
-const createTableSql = `
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    name TEXT,
+    age INTEGER,
+    goal TEXT,
+    level TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+db.exec(`
   CREATE TABLE IF NOT EXISTS workouts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     exercise TEXT NOT NULL,
     sets INTEGER,
     reps TEXT,
     weight REAL,
     date TEXT DEFAULT (datetime('now'))
   )
-`;
+`);
 
-db.exec(createTableSql);
+// Migrate users table — add message_count if missing
+const userCols = db.prepare("PRAGMA table_info(users)").all();
+if (!userCols.some((c) => c.name === "message_count")) {
+  db.exec("ALTER TABLE users ADD COLUMN message_count INTEGER DEFAULT 0");
+}
 
-const tableInfo = db.prepare("PRAGMA table_info(workouts)").all();
-const repsColumn = tableInfo.find((col) => col.name === "reps");
+// Migrate existing workouts table — add user_id if missing
+const workoutCols = db.prepare("PRAGMA table_info(workouts)").all();
+if (!workoutCols.some((c) => c.name === "user_id")) {
+  db.exec("ALTER TABLE workouts ADD COLUMN user_id INTEGER REFERENCES users(id)");
+}
 
-if (repsColumn && repsColumn.type.toUpperCase() !== "TEXT") {
+// Migrate reps column to TEXT if it was created as INTEGER
+const repsCol = workoutCols.find((c) => c.name === "reps");
+if (repsCol && repsCol.type.toUpperCase() !== "TEXT") {
   db.exec(`
     BEGIN TRANSACTION;
     CREATE TABLE workouts_new (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
       exercise TEXT NOT NULL,
       sets INTEGER,
       reps TEXT,
       weight REAL,
       date TEXT DEFAULT (datetime('now'))
     );
-    INSERT INTO workouts_new (id, exercise, sets, reps, weight, date)
-      SELECT id, exercise, sets, reps, weight, date FROM workouts;
+    INSERT INTO workouts_new SELECT id, NULL, exercise, sets, reps, weight, date FROM workouts;
     DROP TABLE workouts;
     ALTER TABLE workouts_new RENAME TO workouts;
     COMMIT;
