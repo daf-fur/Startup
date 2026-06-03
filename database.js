@@ -26,10 +26,20 @@ db.exec(`
   )
 `);
 
-// Migrate users table — add message_count if missing
+// Migrate users table — add new columns if missing
 const userCols = db.prepare("PRAGMA table_info(users)").all();
-if (!userCols.some((c) => c.name === "message_count")) {
+const userColNames = userCols.map((c) => c.name);
+if (!userColNames.includes("message_count")) {
   db.exec("ALTER TABLE users ADD COLUMN message_count INTEGER DEFAULT 0");
+}
+if (!userColNames.includes("is_subscribed")) {
+  db.exec("ALTER TABLE users ADD COLUMN is_subscribed INTEGER DEFAULT 0");
+}
+if (!userColNames.includes("stripe_customer_id")) {
+  db.exec("ALTER TABLE users ADD COLUMN stripe_customer_id TEXT");
+}
+if (!userColNames.includes("stripe_subscription_id")) {
+  db.exec("ALTER TABLE users ADD COLUMN stripe_subscription_id TEXT");
 }
 
 // Migrate existing workouts table — add user_id if missing

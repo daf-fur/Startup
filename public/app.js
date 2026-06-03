@@ -23,10 +23,15 @@ let authMode = "login";
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
-const FREE_LIMIT = 20;
+const FREE_LIMIT = 5;
 
 function updateMessageCounter(used) {
   const counter = document.getElementById("message-counter");
+  if (currentUser?.is_subscribed) {
+    counter.textContent = "Pro";
+    counter.classList.remove("near-limit");
+    return;
+  }
   const remaining = FREE_LIMIT - used;
   if (remaining <= 0) {
     counter.textContent = "Free limit reached";
@@ -40,9 +45,31 @@ function updateMessageCounter(used) {
 function showApp() {
   document.getElementById("auth-overlay").hidden = true;
   document.getElementById("main-app").hidden = false;
+
+  // Re-enable chat in case it was locked from a previous session
+  userInput.disabled = !!currentUser.is_subscribed ? false : (currentUser.message_count || 0) >= FREE_LIMIT;
+  sendButton.disabled = userInput.disabled;
+
   updateMessageCounter(currentUser.message_count || 0);
   initProfile();
   loadWorkouts();
+
+  const manageBilling = document.getElementById("manage-billing");
+  manageBilling.hidden = !currentUser.is_subscribed;
+
+  // Handle ?checkout=success / ?checkout=cancelled redirect from Stripe
+  const params = new URLSearchParams(window.location.search);
+  const checkoutResult = params.get("checkout");
+  if (checkoutResult) {
+    window.history.replaceState({}, "", "/");
+    const banner = document.getElementById("checkout-banner");
+    const text = document.getElementById("checkout-banner-text");
+    if (checkoutResult === "success") {
+      text.textContent = "You're now on Pro — unlimited coaching unlocked!";
+      banner.hidden = false;
+      setTimeout(() => { banner.hidden = true; }, 6000);
+    }
+  }
 }
 
 function showAuth() {
@@ -120,6 +147,38 @@ document.getElementById("logout-btn").addEventListener("click", async () => {
   currentUser = null;
   showAuth();
 });
+
+document.getElementById("manage-billing").addEventListener("click", async () => {
+  try {
+    const res = await fetch("/api/billing/portal", { method: "POST" });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+  } catch {
+    alert("Could not open billing portal. Please try again.");
+  }
+});
+
+document.getElementById("checkout-banner-close").addEventListener("click", () => {
+  document.getElementById("checkout-banner").hidden = true;
+});
+
+async function handleUpgrade() {
+  const btn = document.getElementById("upgrade-btn");
+  if (btn) setButtonState(btn, true);
+  try {
+    const res = await fetch("/api/billing/checkout", { method: "POST" });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert(data.error || "Could not start checkout.");
+      if (btn) setButtonState(btn, false);
+    }
+  } catch {
+    alert("Connection error. Please try again.");
+    if (btn) setButtonState(btn, false);
+  }
+}
 
 // ── Profile ───────────────────────────────────────────────────────────────────
 
@@ -328,7 +387,8 @@ async function handleChat() {
 
     if (res.status === 402) {
       trainerBubble.className = "message limit-reached";
-      trainerBubble.innerHTML = `<strong>Free limit reached</strong><em>You've used all ${FREE_LIMIT} free messages. Paid plans are coming soon — check back shortly.</em>`;
+      trainerBubble.innerHTML = `<strong>Free limit reached</strong><em>You've used all ${FREE_LIMIT} free messages. Upgrade to keep chatting with your AI coach.</em><button class="primary-button compact upgrade-btn" id="upgrade-btn">Upgrade to Pro</button>`;
+      document.getElementById("upgrade-btn").addEventListener("click", handleUpgrade);
       updateMessageCounter(FREE_LIMIT);
       userInput.disabled = true;
       sendButton.disabled = true;

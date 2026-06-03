@@ -400,6 +400,13 @@ button:focus-visible {
   font-size: 0.95rem;
 }
 
+.message.trainer em {
+  font-family: "Courier New", Courier, monospace;
+  font-style: normal;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
 .history-entry time {
   color: var(--muted);
   font-size: 0.92rem;
@@ -498,6 +505,41 @@ button:focus-visible {
 }
 
 /* ── Auth overlay ─────────────────────────────────────────────────────────── */
+
+.checkout-banner {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  border-radius: 1rem;
+  background: #1a2e1a;
+  border: 1px solid rgba(168, 217, 138, 0.3);
+  color: #a8d98a;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-soft);
+  white-space: nowrap;
+}
+
+.checkout-banner[hidden] { display: none; }
+
+.checkout-banner-close {
+  background: transparent;
+  border: none;
+  color: #a8d98a;
+  font-size: 1.2rem;
+  padding: 0 0.25rem;
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.checkout-banner-close:hover { opacity: 1; transform: none; }
 
 .panel-head-actions {
   display: flex;
