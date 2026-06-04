@@ -108,7 +108,7 @@ app.post("/api/auth/logout", (req, res) => {
 });
 
 app.get("/api/auth/me", requireAuth, (req, res) => {
-  const user = db.prepare("SELECT id, email, name, age, goal, level, message_count, is_subscribed FROM users WHERE id = ?").get(req.session.userId);
+  const user = db.prepare("SELECT id, email, name, age, goal, level, message_count, is_subscribed, current_streak, longest_streak FROM users WHERE id = ?").get(req.session.userId);
   if (!user) return res.status(401).json({ error: "Not authenticated." });
   res.json({ user });
 });
@@ -234,11 +234,41 @@ app.post("/api/chat", requireAuth, async (req, res) => {
 
 // ── Workouts ──────────────────────────────────────────────────────────────────
 
+function updateStreak(userId) {
+  const user = db.prepare("SELECT current_streak, longest_streak, last_workout_date FROM users WHERE id = ?").get(userId);
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+  let streak = user.current_streak || 0;
+  if (user.last_workout_date === today) {
+    // already logged today, no change
+  } else if (user.last_workout_date === yesterday) {
+    streak += 1;
+  } else {
+    streak = 1;
+  }
+
+  const longest = Math.max(streak, user.longest_streak || 0);
+  db.prepare("UPDATE users SET current_streak = ?, longest_streak = ?, last_workout_date = ? WHERE id = ?")
+    .run(streak, longest, today, userId);
+  return { current: streak, longest };
+}
+
+function checkPR(userId, exercise, weight) {
+  if (!weight || parseFloat(weight) <= 0) return false;
+  const prev = db.prepare(
+    "SELECT MAX(CAST(weight AS REAL)) as max_weight FROM workouts WHERE user_id = ? AND exercise = ?"
+  ).get(userId, exercise);
+  return !prev.max_weight || parseFloat(weight) > parseFloat(prev.max_weight);
+}
+
 app.post("/api/workout", requireAuth, (req, res) => {
   const { exercise, sets, reps, weight } = req.body;
+  const isPR = checkPR(req.session.userId, exercise, weight);
   db.prepare("INSERT INTO workouts (user_id, exercise, sets, reps, weight) VALUES (?, ?, ?, ?, ?)")
     .run(req.session.userId, exercise, sets, reps, weight);
-  res.json({ success: true });
+  const streak = updateStreak(req.session.userId);
+  res.json({ success: true, isPR, streak });
 });
 
 app.delete("/api/workout/:id", requireAuth, (req, res) => {

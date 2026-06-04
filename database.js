@@ -41,6 +41,15 @@ if (!userColNames.includes("stripe_customer_id")) {
 if (!userColNames.includes("stripe_subscription_id")) {
   db.exec("ALTER TABLE users ADD COLUMN stripe_subscription_id TEXT");
 }
+if (!userColNames.includes("current_streak")) {
+  db.exec("ALTER TABLE users ADD COLUMN current_streak INTEGER DEFAULT 0");
+}
+if (!userColNames.includes("longest_streak")) {
+  db.exec("ALTER TABLE users ADD COLUMN longest_streak INTEGER DEFAULT 0");
+}
+if (!userColNames.includes("last_workout_date")) {
+  db.exec("ALTER TABLE users ADD COLUMN last_workout_date TEXT");
+}
 
 // Migrate existing workouts table — add user_id if missing
 const workoutCols = db.prepare("PRAGMA table_info(workouts)").all();

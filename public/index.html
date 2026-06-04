@@ -171,7 +171,13 @@
             <p class="panel-eyebrow">Session archive</p>
             <h2>Recent workouts</h2>
           </div>
-          <button type="button" class="ghost-button compact" id="refresh-button">Refresh</button>
+          <div class="history-head-right">
+            <div id="streak-display" class="streak-display" hidden>
+              <span id="streak-count">0</span>
+              <span class="streak-label">day streak</span>
+            </div>
+            <button type="button" class="ghost-button compact" id="refresh-button">Refresh</button>
+          </div>
         </div>
         <div class="chart-section" id="chart-section" hidden>
           <div class="chart-controls">

@@ -25,6 +25,13 @@ let authMode = "login";
 
 const FREE_LIMIT = 5;
 
+function updateStreakDisplay(streak) {
+  const el = document.getElementById("streak-display");
+  if (!streak || streak < 1) { el.hidden = true; return; }
+  el.hidden = false;
+  document.getElementById("streak-count").textContent = streak;
+}
+
 function updateMessageCounter(used) {
   const counter = document.getElementById("message-counter");
   if (currentUser?.is_subscribed) {
@@ -51,6 +58,7 @@ function showApp() {
   sendButton.disabled = userInput.disabled;
 
   updateMessageCounter(currentUser.message_count || 0);
+  updateStreakDisplay(currentUser.current_streak || 0);
   initProfile();
   loadWorkouts();
 
@@ -317,6 +325,18 @@ chartExerciseSelect.addEventListener("change", () => {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+function getPRIds(workouts) {
+  const best = {};
+  workouts.forEach((w) => {
+    if (w.weight && parseFloat(w.weight) > 0) {
+      if (!best[w.exercise] || parseFloat(w.weight) > parseFloat(best[w.exercise].weight)) {
+        best[w.exercise] = w;
+      }
+    }
+  });
+  return new Set(Object.values(best).map((w) => w.id));
+}
+
 function escapeHtml(text) {
   const span = document.createElement("span");
   span.textContent = text;
@@ -428,12 +448,18 @@ async function handleWorkout() {
   setButtonState(workoutForm.querySelector(".primary-button"), true);
 
   try {
-    await fetch("/api/workout", {
+    const response = await fetch("/api/workout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ exercise, sets, reps, weight }),
     });
-    showWorkoutStatus("Workout logged. Keep the momentum going.", "success");
+    const data = await response.json();
+    const exercise = document.getElementById("exercise").value.trim();
+    const msg = data.isPR
+      ? `New personal record on ${exercise}!`
+      : "Workout logged. Keep the momentum going.";
+    showWorkoutStatus(msg, "success");
+    if (data.streak) updateStreakDisplay(data.streak.current);
     workoutForm.reset();
     await loadWorkouts();
   } catch {
@@ -474,12 +500,14 @@ async function loadWorkouts() {
     populateExerciseSelect(workouts);
     if (chartExerciseSelect.value) renderChart(chartExerciseSelect.value);
 
+    const prIds = getPRIds(workouts);
+
     list.innerHTML = workouts
       .slice()
       .reverse()
       .map((w) => `
         <div class="history-entry">
-          <strong>${escapeHtml(w.exercise)}</strong>
+          <strong>${escapeHtml(w.exercise)}${prIds.has(w.id) && w.weight ? '<span class="pr-badge">PR</span>' : ""}</strong>
           <span>${w.sets} sets · ${w.reps} reps${w.weight ? ` · ${w.weight} lbs` : ""}</span>
           <time>${formatDate(w.date)}</time>
           <button class="delete-btn" data-id="${w.id}" aria-label="Delete entry">×</button>
