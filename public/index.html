@@ -4,13 +4,146 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#12110f" />
   <title>Gym Companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <div id="auth-overlay" class="auth-overlay">
+  <!-- Landing page — shown to logged-out visitors -->
+  <div id="landing-page" hidden>
+    <nav class="landing-nav">
+      <span class="landing-logo">Gym Companion</span>
+      <div class="landing-nav-actions">
+        <button class="ghost-button compact" id="nav-login">Log in</button>
+        <button class="primary-button compact" id="nav-signup">Sign up free</button>
+      </div>
+    </nav>
+
+    <section class="landing-section landing-hero">
+      <div class="landing-container">
+        <p class="eyebrow">AI-powered fitness</p>
+        <h1 class="landing-headline">Your personal trainer,<br>always available.</h1>
+        <p class="landing-sub">Log workouts, track progress, and get personalised coaching from an AI that knows your
+          goals, your history, and your body.</p>
+        <div class="landing-cta-row">
+          <button class="primary-button landing-cta-btn" id="hero-signup">Start for free</button>
+          <button class="ghost-button landing-cta-btn" id="hero-login">Log in</button>
+        </div>
+        <p class="landing-disclaimer">Free to start &middot; No credit card required</p>
+      </div>
+    </section>
+
+    <section class="landing-section landing-features">
+      <div class="landing-container">
+        <div class="landing-section-head">
+          <p class="eyebrow">Everything you need</p>
+          <h2>Built for real training.</h2>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-label">Coach</div>
+            <h3>Personalised AI coaching</h3>
+            <p>Ask your trainer anything. Get advice tailored to your age, goals, experience level, and recent workout
+              history.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-label">Log</div>
+            <h3>Workout logging</h3>
+            <p>Track every set with exercise, reps, weight, and notes. Your full history is always there when you need
+              it.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-label">Charts</div>
+            <h3>Progress charts</h3>
+            <p>Visualise your strength gains over time. See exactly how far you've come on every single exercise.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-label">Records</div>
+            <h3>Streaks & personal records</h3>
+            <p>Build daily streaks and get a callout every time you set a new personal record. Stay motivated.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section landing-how">
+      <div class="landing-container">
+        <div class="landing-section-head">
+          <p class="eyebrow">Simple by design</p>
+          <h2>Up and running in minutes.</h2>
+        </div>
+        <div class="steps-grid">
+          <div class="step-card">
+            <span class="step-number">1</span>
+            <h3>Create your account</h3>
+            <p>Sign up free in seconds. Set your goals, experience level, and let the app get to know you.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-number">2</span>
+            <h3>Log your workouts</h3>
+            <p>Add exercises, sets, reps, and weight after each session. Takes under a minute.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-number">3</span>
+            <h3>Ask your coach</h3>
+            <p>Not sure what to do next? Ask. Your AI coach gives advice based on what you've actually been doing.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section landing-pricing">
+      <div class="landing-container">
+        <div class="landing-section-head">
+          <p class="eyebrow">Pricing</p>
+          <h2>Start free, upgrade when ready.</h2>
+        </div>
+        <div class="pricing-grid">
+          <div class="pricing-card">
+            <div class="pricing-tier">Free</div>
+            <div class="pricing-amount">
+              <span class="pricing-price">$0</span>
+              <span class="pricing-period">/month</span>
+            </div>
+            <ul class="pricing-features">
+              <li>5 AI coaching messages</li>
+              <li>Unlimited workout logging</li>
+              <li>Progress charts</li>
+              <li>Streaks &amp; personal records</li>
+              <li>Body weight tracking</li>
+            </ul>
+            <button class="ghost-button" id="pricing-free">Get started free</button>
+          </div>
+          <div class="pricing-card pricing-card-pro">
+            <div class="pricing-tier">Pro</div>
+            <div class="pricing-amount">
+              <span class="pricing-price">$9</span>
+              <span class="pricing-period">/month</span>
+            </div>
+            <ul class="pricing-features">
+              <li>Unlimited AI coaching</li>
+              <li>Everything in Free</li>
+              <li>Cancel anytime</li>
+            </ul>
+            <button class="primary-button" id="pricing-pro">Start Pro</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="landing-footer">
+      <p>Gym Companion &copy; 2026</p>
+    </footer>
+  </div>
+
+  <div id="auth-overlay" class="auth-overlay" hidden>
     <div class="auth-card panel">
       <div class="auth-header">
         <p class="eyebrow">Gym Companion</p>
@@ -30,7 +163,8 @@
         </div>
         <div class="auth-field">
           <label for="auth-password">Password</label>
-          <input type="password" id="auth-password" placeholder="Password (min 8 characters)" autocomplete="current-password" />
+          <input type="password" id="auth-password" placeholder="Password (min 8 characters)"
+            autocomplete="current-password" />
         </div>
         <p id="auth-error" class="auth-error" hidden></p>
         <button type="submit" class="primary-button" id="auth-submit">Log in</button>
@@ -51,7 +185,8 @@
       <form id="reset-form" class="auth-form" hidden novalidate>
         <div class="auth-field">
           <label for="reset-password">New password</label>
-          <input type="password" id="reset-password" placeholder="New password (min 8 characters)" autocomplete="new-password" />
+          <input type="password" id="reset-password" placeholder="New password (min 8 characters)"
+            autocomplete="new-password" />
         </div>
         <p id="reset-error" class="auth-error" hidden></p>
         <button type="submit" class="primary-button" id="reset-submit">Set new password</button>
@@ -110,7 +245,8 @@
           <div class="field-group">
             <div class="profile-field">
               <label for="profile-height">Height (in)</label>
-              <input id="profile-height" name="height" type="number" min="48" max="96" step="0.5" placeholder="e.g. 70" />
+              <input id="profile-height" name="height" type="number" min="48" max="96" step="0.5"
+                placeholder="e.g. 70" />
             </div>
             <div class="profile-field">
               <label for="profile-goal">Goal</label>
@@ -188,7 +324,8 @@
           </div>
           <div class="input-group">
             <label class="sr-only" for="notes">Session notes</label>
-            <textarea id="notes" name="notes" class="notes-input" placeholder="Notes (optional) — how did it feel?" rows="2"></textarea>
+            <textarea id="notes" name="notes" class="notes-input" placeholder="Notes (optional) — how did it feel?"
+              rows="2"></textarea>
           </div>
           <div class="form-actions">
             <button type="submit" class="primary-button">Log workout</button>
@@ -219,7 +356,8 @@
               <option value="">View progress for an exercise…</option>
             </select>
           </div>
-          <div class="chart-empty-state" id="chart-empty-state">Select an exercise to see weight progress over time.</div>
+          <div class="chart-empty-state" id="chart-empty-state">Select an exercise to see weight progress over time.
+          </div>
           <div class="chart-wrap" id="chart-wrap" hidden>
             <canvas id="progress-chart"></canvas>
           </div>
@@ -246,7 +384,8 @@
             <div id="body-status" class="message-line"></div>
           </form>
           <div class="body-chart-area">
-            <div class="chart-empty-state" id="body-empty-state">Log your first weight entry to see your progress chart.</div>
+            <div class="chart-empty-state" id="body-empty-state">Log your first weight entry to see your progress chart.
+            </div>
             <div class="chart-wrap" id="body-chart-wrap" hidden>
               <canvas id="body-chart"></canvas>
             </div>

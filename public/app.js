@@ -28,6 +28,7 @@ const FREE_LIMIT = 5;
 
 function showApp() {
   document.getElementById("auth-overlay").hidden = true;
+  document.getElementById("landing-page").hidden = true;
   document.getElementById("main-app").hidden = false;
 
   userInput.disabled = currentUser.is_subscribed ? false : (currentUser.message_count || 0) >= FREE_LIMIT;
@@ -59,13 +60,18 @@ function showApp() {
   }
 }
 
-function showAuth(mode = "login") {
-  document.getElementById("auth-overlay").hidden = false;
+function showAuth() {
+  document.getElementById("auth-overlay").hidden = true;
+  document.getElementById("landing-page").hidden = false;
   document.getElementById("main-app").hidden = true;
   conversationHistory = [];
   allWorkouts = [];
   chatBox.innerHTML = "";
+}
+
+function openAuthModal(mode = "login") {
   setAuthMode(mode);
+  document.getElementById("auth-overlay").hidden = false;
 }
 
 async function checkAuth() {
@@ -90,6 +96,7 @@ async function checkAuth() {
     showAuth();
   }
 }
+
 
 // ── Auth modes ────────────────────────────────────────────────────────────────
 
@@ -567,6 +574,22 @@ async function loadBodyWeights() {
     list.innerHTML = "";
   }
 }
+
+// ── Landing page buttons ──────────────────────────────────────────────────────
+
+document.getElementById("nav-login").addEventListener("click", () => openAuthModal("login"));
+document.getElementById("nav-signup").addEventListener("click", () => openAuthModal("signup"));
+document.getElementById("hero-signup").addEventListener("click", () => openAuthModal("signup"));
+document.getElementById("hero-login").addEventListener("click", () => openAuthModal("login"));
+document.getElementById("pricing-free").addEventListener("click", () => openAuthModal("signup"));
+document.getElementById("pricing-pro").addEventListener("click", () => openAuthModal("signup"));
+
+// Close auth modal when clicking the backdrop (outside the card)
+document.getElementById("auth-overlay").addEventListener("click", (e) => {
+  if (e.target === document.getElementById("auth-overlay")) {
+    document.getElementById("auth-overlay").hidden = true;
+  }
+});
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 

@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs");
 const Stripe = require("stripe");
 const Anthropic = require("@anthropic-ai/sdk");
 const nodemailer = require("nodemailer");
+const rateLimit = require("express-rate-limit");
 const db = require("./database");
 
 const app = express();
@@ -83,7 +84,11 @@ app.use(session({
   secret: process.env.SESSION_SECRET || "gym-companion-dev-secret",
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 },
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  },
 }));
 
 function requireAuth(req, res, next) {
@@ -91,13 +96,37 @@ function requireAuth(req, res, next) {
   next();
 }
 
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: "Too many attempts. Please wait 15 minutes and try again." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const chatLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: { error: "Too many messages. Please slow down and try again shortly." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const forgotLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  message: { error: "Too many reset attempts. Please wait an hour and try again." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 function userFields(id) {
   return db.prepare("SELECT id, email, name, age, height, goal, level, message_count, is_subscribed, current_streak, longest_streak FROM users WHERE id = ?").get(id);
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
-app.post("/api/auth/signup", async (req, res) => {
+app.post("/api/auth/signup", authLimiter, async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: "Email and password are required." });
   if (password.length < 8) return res.status(400).json({ error: "Password must be at least 8 characters." });
@@ -112,7 +141,7 @@ app.post("/api/auth/signup", async (req, res) => {
   }
 });
 
-app.post("/api/auth/login", async (req, res) => {
+app.post("/api/auth/login", authLimiter, async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: "Email and password are required." });
   const row = db.prepare("SELECT * FROM users WHERE email = ?").get(email.trim().toLowerCase());
@@ -139,7 +168,7 @@ app.patch("/api/auth/me", requireAuth, (req, res) => {
   res.json({ user: userFields(req.session.userId) });
 });
 
-app.post("/api/auth/forgot-password", async (req, res) => {
+app.post("/api/auth/forgot-password", forgotLimiter, async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: "Email is required." });
   const user = db.prepare("SELECT id FROM users WHERE email = ?").get(email.trim().toLowerCase());
@@ -253,7 +282,7 @@ async function getTrainerReply(message, history, profile) {
   }
 }
 
-app.post("/api/chat", requireAuth, async (req, res) => {
+app.post("/api/chat", requireAuth, chatLimiter, async (req, res) => {
   const { message, history } = req.body;
   if (!message?.trim()) return res.status(400).json({ error: "Message is required." });
   const user = db.prepare("SELECT name, age, height, goal, level, message_count, is_subscribed FROM users WHERE id = ?").get(req.session.userId);
