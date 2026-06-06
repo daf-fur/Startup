@@ -14,13 +14,15 @@
     <div class="auth-card panel">
       <div class="auth-header">
         <p class="eyebrow">Gym Companion</p>
-        <h1 class="auth-title">Track your progress.</h1>
-        <p class="auth-sub">Guided by AI, built around you.</p>
+        <h1 class="auth-title" id="auth-title">Track your progress.</h1>
+        <p class="auth-sub" id="auth-sub">Guided by AI, built around you.</p>
       </div>
-      <div class="auth-tabs">
+
+      <div class="auth-tabs" id="auth-tabs">
         <button type="button" class="auth-tab active" id="tab-login">Log in</button>
         <button type="button" class="auth-tab" id="tab-signup">Sign up</button>
       </div>
+
       <form id="auth-form" class="auth-form" novalidate>
         <div class="auth-field">
           <label for="auth-email">Email</label>
@@ -32,6 +34,27 @@
         </div>
         <p id="auth-error" class="auth-error" hidden></p>
         <button type="submit" class="primary-button" id="auth-submit">Log in</button>
+        <button type="button" class="auth-link" id="forgot-link">Forgot password?</button>
+      </form>
+
+      <form id="forgot-form" class="auth-form" hidden novalidate>
+        <div class="auth-field">
+          <label for="forgot-email">Email</label>
+          <input type="email" id="forgot-email" placeholder="you@example.com" autocomplete="email" />
+        </div>
+        <p id="forgot-error" class="auth-error" hidden></p>
+        <p id="forgot-success" class="auth-success" hidden></p>
+        <button type="submit" class="primary-button" id="forgot-submit">Send reset link</button>
+        <button type="button" class="auth-link" id="back-to-login">Back to log in</button>
+      </form>
+
+      <form id="reset-form" class="auth-form" hidden novalidate>
+        <div class="auth-field">
+          <label for="reset-password">New password</label>
+          <input type="password" id="reset-password" placeholder="New password (min 8 characters)" autocomplete="new-password" />
+        </div>
+        <p id="reset-error" class="auth-error" hidden></p>
+        <button type="submit" class="primary-button" id="reset-submit">Set new password</button>
       </form>
     </div>
   </div>
@@ -86,6 +109,10 @@
           </div>
           <div class="field-group">
             <div class="profile-field">
+              <label for="profile-height">Height (in)</label>
+              <input id="profile-height" name="height" type="number" min="48" max="96" step="0.5" placeholder="e.g. 70" />
+            </div>
+            <div class="profile-field">
               <label for="profile-goal">Goal</label>
               <select id="profile-goal" name="goal">
                 <option value="">Select a goal…</option>
@@ -95,6 +122,8 @@
                 <option value="general">General fitness</option>
               </select>
             </div>
+          </div>
+          <div class="field-group">
             <div class="profile-field">
               <label for="profile-level">Experience level</label>
               <select id="profile-level" name="level">
@@ -157,6 +186,10 @@
               <input id="weight" name="weight" type="number" min="0" placeholder="Weight (lbs)" />
             </div>
           </div>
+          <div class="input-group">
+            <label class="sr-only" for="notes">Session notes</label>
+            <textarea id="notes" name="notes" class="notes-input" placeholder="Notes (optional) — how did it feel?" rows="2"></textarea>
+          </div>
           <div class="form-actions">
             <button type="submit" class="primary-button">Log workout</button>
             <button type="button" class="ghost-button" id="clear-workout">Clear</button>
@@ -192,6 +225,34 @@
           </div>
         </div>
         <div id="workout-list" class="history-list"></div>
+      </article>
+
+      <article class="panel body-panel">
+        <div class="panel-head">
+          <div>
+            <p class="panel-eyebrow">Body log</p>
+            <h2>Weight over time</h2>
+          </div>
+        </div>
+        <div class="body-layout">
+          <form id="body-form" class="body-form">
+            <div class="profile-field">
+              <label for="body-weight">Body weight (lbs)</label>
+              <input id="body-weight" type="number" min="50" max="700" step="0.1" placeholder="e.g. 175.5" />
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="primary-button compact">Log weight</button>
+            </div>
+            <div id="body-status" class="message-line"></div>
+          </form>
+          <div class="body-chart-area">
+            <div class="chart-empty-state" id="body-empty-state">Log your first weight entry to see your progress chart.</div>
+            <div class="chart-wrap" id="body-chart-wrap" hidden>
+              <canvas id="body-chart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div id="body-list" class="body-list history-list"></div>
       </article>
     </section>
   </main>
