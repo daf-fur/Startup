@@ -9,12 +9,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Space+Grotesk:wght@400;500;600&display=swap"
     rel="stylesheet" />
+  <link rel="preload" href="style.css" as="style" />
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
+  <div id="app-toast" class="toast" hidden aria-live="polite"></div>
 
   <!-- Landing page — shown to logged-out visitors -->
   <div id="landing-page" hidden>
@@ -30,8 +32,8 @@
       <div class="landing-container">
         <p class="eyebrow">AI-powered fitness</p>
         <h1 class="landing-headline">Your personal trainer,<br>always available.</h1>
-        <p class="landing-sub">Log workouts, track progress, and get personalised coaching from an AI that knows your
-          goals, your history, and your body.</p>
+        <p class="landing-sub">Track workouts with clarity, then act on coaching that is specific, smart, and
+          straightforward.</p>
         <div class="landing-cta-row">
           <button class="primary-button landing-cta-btn" id="hero-signup">Start for free</button>
           <button class="ghost-button landing-cta-btn" id="hero-login">Log in</button>
@@ -203,13 +205,13 @@
     <section class="hero-panel">
       <div class="hero-copy">
         <p class="eyebrow">Gym companion</p>
-        <h1>Simple tracking for stronger training.</h1>
-        <p class="hero-description">A no-fluff workout dashboard that keeps sets, notes, and session history organized
-          so you can focus on progress.</p>
+        <h1>Focused training, built for momentum.</h1>
+        <p class="hero-description">A purposeful dashboard that keeps sessions, notes, and progress visible without
+          visual clutter.</p>
         <div class="hero-pill-row">
-          <span>Effort tracking</span>
-          <span>Clear cues</span>
-          <span>Session history</span>
+          <span>Precision</span>
+          <span>Recovery</span>
+          <span>Progress</span>
         </div>
       </div>
       <div class="hero-note">
@@ -396,8 +398,8 @@
     </section>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer crossorigin="anonymous"></script>
+  <script src="app.js" defer></script>
 </body>
 
 </html>
