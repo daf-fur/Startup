@@ -1,16 +1,17 @@
-﻿:root {
+:root {
   color-scheme: dark;
-  --bg: oklch(0.08 0.08 250);
-  --surface: oklch(0.14 0.05 250);
-  --surface-strong: oklch(0.18 0.04 250);
-  --surface-soft: oklch(0.22 0.04 250 / 0.9);
+  --bg: oklch(0.1 0.04 28); /* warmer, slightly lighter charcoal */
+  --surface: oklch(0.15 0.04 250);
+  --surface-strong: oklch(0.2 0.03 250);
+  --surface-soft: oklch(0.22 0.03 250 / 0.92);
   --text: oklch(0.96 0.02 250);
   --muted: oklch(0.74 0.02 250 / 0.66);
-  --accent: oklch(0.78 0.16 240);
-  --accent-soft: oklch(0.58 0.12 240 / 0.18);
-  --border: oklch(0.16 0.04 245 / 0.18);
-  --shadow: 0 28px 72px rgba(0, 0, 0, 0.32);
-  --shadow-soft: 0 16px 36px rgba(0, 0, 0, 0.18);
+  --accent: oklch(0.62 0.1 35); /* warmer steel-to-clay accent */
+  --accent-soft: oklch(0.58 0.08 35 / 0.14);
+  --accent-2: oklch(0.66 0.11 28); /* warm clay secondary accent */
+  --border: oklch(0.16 0.03 245 / 0.18);
+  --shadow: 0 24px 64px rgba(0, 0, 0, 0.36);
+  --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.2);
   --radius: 1.5rem;
 }
 
@@ -43,7 +44,35 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: none;
+  /* Layered, image-like background: soft color blobs + diagonal texture */
+  background-image:
+    radial-gradient(
+      circle at 12% 18%,
+      color-mix(in oklch, var(--accent) 18%, var(--bg) 82%) 0%,
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 82% 78%,
+      color-mix(in oklch, var(--accent-2) 12%, var(--bg) 88%) 0%,
+      transparent 24%
+    ),
+    repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.01) 0 1px,
+      transparent 1px 6px
+    );
+  background-size: cover;
+  background-blend-mode: screen, screen, overlay;
+  z-index: -1;
+  opacity: 0.95;
+  filter: blur(8px) saturate(1.03);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    filter: none;
+    transition: none;
+  }
 }
 
 .page-shell {
@@ -59,8 +88,8 @@ body::before {
   position: relative;
   overflow: hidden;
   border-radius: 1.75rem;
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid color-mix(in oklch, var(--accent) 6%, var(--surface) 94%);
+  background: color-mix(in oklch, var(--accent) 2%, var(--surface) 98%);
   box-shadow: var(--shadow);
 }
 
@@ -110,8 +139,8 @@ h1 {
   gap: 0.9rem;
   padding: 1.5rem;
   border-radius: 1.5rem;
-  background: rgba(193, 206, 226, 0.05);
-  border: 1px solid rgba(193, 206, 226, 0.08);
+  background: color-mix(in oklch, var(--accent) 6%, var(--surface) 94%);
+  border: 1px solid color-mix(in oklch, var(--accent) 10%, var(--surface) 90%);
 }
 
 .note-title {
@@ -129,15 +158,20 @@ h1 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, max-content));
   gap: 0.85rem;
+  justify-content: start;
 }
 
 .hero-pill-row span {
   padding: 0.8rem 1rem;
   border-radius: 999px;
-  background: rgba(193, 206, 226, 0.05);
+  background: color-mix(in oklch, var(--accent) 8%, var(--surface) 92%);
   color: var(--text);
   font-size: 0.92rem;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .hero-stats {
@@ -149,7 +183,7 @@ h1 {
   padding: 1.5rem;
   border-radius: 1.5rem;
   background: var(--surface-strong);
-  border: 1px solid rgba(193, 206, 226, 0.08);
+  border: 1px solid color-mix(in oklch, var(--accent) 8%, var(--surface) 92%);
 }
 
 .stat-value {
@@ -228,8 +262,8 @@ h1 {
   width: 100%;
   padding: 0.85rem 1rem;
   border-radius: 0.95rem;
-  border: 1px solid rgba(193, 206, 226, 0.16);
-  background: rgba(193, 206, 226, 0.08);
+  border: 1px solid color-mix(in oklch, var(--accent) 12%, var(--surface) 88%);
+  background: color-mix(in oklch, var(--accent) 6%, var(--surface) 94%);
   color: var(--text);
   outline: none;
   font-family: "IBM Plex Sans", sans-serif;
@@ -239,11 +273,12 @@ h1 {
 }
 
 .notes-input::placeholder {
-  color: rgba(193, 206, 226, 0.45);
+  color: color-mix(in oklch, var(--accent) 40%, var(--surface) 60%);
 }
 .notes-input:focus-visible {
   border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(193, 206, 226, 0.12);
+  box-shadow: 0 0 0 4px
+    color-mix(in oklch, var(--accent) 12%, var(--surface) 88%);
 }
 
 .history-entry .entry-notes {
@@ -301,7 +336,7 @@ h1 {
   padding: 0.75rem 1rem;
   border-radius: 999px;
   color: var(--text);
-  background: rgba(193, 206, 226, 0.08);
+  background: color-mix(in oklch, var(--accent) 8%, var(--surface) 92%);
   font-size: 0.9rem;
   font-weight: 700;
 }
@@ -313,8 +348,8 @@ h1 {
   overflow: auto;
   padding: 1.5rem;
   border-radius: 1.5rem;
-  background: rgba(193, 206, 226, 0.05);
-  border: 1px solid rgba(193, 206, 226, 0.08);
+  background: color-mix(in oklch, var(--accent) 4%, var(--surface) 96%);
+  border: 1px solid color-mix(in oklch, var(--accent) 8%, var(--surface) 92%);
 }
 
 .chat-input,
@@ -338,8 +373,8 @@ select {
   min-height: 3rem;
   padding: 0.95rem 1rem;
   border-radius: 0.95rem;
-  border: 1px solid rgba(193, 206, 226, 0.16);
-  background: rgba(193, 206, 226, 0.08);
+  border: 1px solid color-mix(in oklch, var(--accent) 12%, var(--surface) 88%);
+  background: color-mix(in oklch, var(--accent) 6%, var(--surface) 94%);
   color: var(--text);
   outline: none;
   font-family: "IBM Plex Sans", sans-serif;
@@ -361,13 +396,14 @@ select option {
 }
 
 input::placeholder {
-  color: rgba(193, 206, 226, 0.45);
+  color: color-mix(in oklch, var(--accent) 40%, var(--surface) 60%);
 }
 
 input:focus-visible,
 select:focus-visible {
   border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(193, 206, 226, 0.12);
+  box-shadow: 0 0 0 4px
+    color-mix(in oklch, var(--accent) 12%, var(--surface) 88%);
 }
 
 .field-group {
@@ -382,7 +418,7 @@ select:focus-visible {
 
 .field-help {
   display: block;
-  color: rgba(193, 206, 226, 0.55);
+  color: color-mix(in oklch, var(--accent) 50%, var(--surface) 50%);
   font-size: 0.87rem;
   line-height: 1.4;
 }
@@ -433,14 +469,15 @@ button:hover {
 }
 
 button:focus-visible {
-  outline: 3px solid rgba(193, 206, 226, 0.28);
+  outline: 3px solid color-mix(in oklch, var(--accent) 24%, var(--surface) 76%);
   outline-offset: 3px;
 }
 
 .primary-button {
   background: var(--accent);
   color: var(--bg);
-  box-shadow: 0 12px 28px rgba(193, 206, 226, 0.14);
+  box-shadow: 0 12px 28px
+    color-mix(in oklch, var(--accent) 12%, var(--surface) 88%);
 }
 
 .primary-button.compact {
@@ -451,7 +488,7 @@ button:focus-visible {
 .ghost-button {
   background: transparent;
   color: var(--text);
-  border: 1px solid rgba(193, 206, 226, 0.12);
+  border: 1px solid color-mix(in oklch, var(--accent) 12%, var(--surface) 88%);
 }
 
 .ghost-button.compact {
@@ -480,16 +517,16 @@ button:focus-visible {
   padding: 1.2rem 1.25rem;
   margin-bottom: 1rem;
   border-radius: 1.35rem;
-  background: rgba(193, 206, 226, 0.05);
-  border: 1px solid rgba(193, 206, 226, 0.08);
+  background: color-mix(in oklch, var(--accent) 4%, var(--surface) 96%);
+  border: 1px solid color-mix(in oklch, var(--accent) 8%, var(--surface) 92%);
 }
 
 .message.user {
-  border-color: rgba(193, 206, 226, 0.18);
+  border-color: color-mix(in oklch, var(--accent) 16%, var(--surface) 84%);
 }
 
 .message.trainer {
-  border-color: rgba(193, 206, 226, 0.12);
+  border-color: color-mix(in oklch, var(--accent) 12%, var(--surface) 88%);
 }
 
 .message strong,
@@ -524,7 +561,7 @@ button:focus-visible {
   font-size: 1rem;
   line-height: 1;
   border-radius: 0.6rem;
-  border: 1px solid rgba(193, 206, 226, 0.12);
+  border: 1px solid color-mix(in oklch, var(--accent) 12%, var(--surface) 88%);
   background: transparent;
   color: var(--muted);
   opacity: 0.4;
@@ -541,8 +578,8 @@ button:focus-visible {
 .chart-empty-state {
   padding: 1rem 1.25rem;
   border-radius: 1.25rem;
-  background: rgba(193, 206, 226, 0.04);
-  border: 1px solid rgba(193, 206, 226, 0.06);
+  background: color-mix(in oklch, var(--accent) 3%, var(--surface) 97%);
+  border: 1px solid color-mix(in oklch, var(--accent) 5%, var(--surface) 95%);
   color: var(--muted);
   font-size: 0.95rem;
   margin-bottom: 1rem;
@@ -561,8 +598,8 @@ button:focus-visible {
   height: 200px;
   padding: 1rem;
   border-radius: 1.35rem;
-  background: rgba(193, 206, 226, 0.04);
-  border: 1px solid rgba(193, 206, 226, 0.08);
+  background: color-mix(in oklch, var(--accent) 4%, var(--surface) 96%);
+  border: 1px solid color-mix(in oklch, var(--accent) 8%, var(--surface) 92%);
   margin-bottom: 1rem;
 }
 
@@ -613,7 +650,7 @@ button:focus-visible {
   }
 }
 
-/* â”€â”€ Auth overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Auth overlay ─────────────────────────────────────────────────────────── */
 
 .checkout-banner {
   position: fixed;
@@ -667,8 +704,8 @@ button:focus-visible {
   gap: 0.35rem;
   padding: 0.55rem 0.95rem;
   border-radius: 999px;
-  background: rgba(193, 206, 226, 0.08);
-  border: 1px solid rgba(193, 206, 226, 0.12);
+  background: color-mix(in oklch, var(--accent) 8%, var(--surface) 92%);
+  border: 1px solid color-mix(in oklch, var(--accent) 12%, var(--surface) 88%);
 }
 
 .streak-display span:first-child {
@@ -730,7 +767,7 @@ button:focus-visible {
   justify-self: start;
 }
 
-/* â”€â”€ Landing page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Landing page ─────────────────────────────────────────────────────────── */
 
 #landing-page {
   min-height: 100vh;
@@ -846,7 +883,7 @@ button:focus-visible {
   align-items: center;
   padding: 0.3rem 0.75rem;
   border-radius: 999px;
-  background: rgba(193, 206, 226, 0.08);
+  background: color-mix(in oklch, var(--accent) 8%, var(--surface) 92%);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -895,7 +932,7 @@ button:focus-visible {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  border: 1px solid rgba(193, 206, 226, 0.2);
+  border: 1px solid color-mix(in oklch, var(--accent) 18%, var(--surface) 82%);
   font-weight: 800;
   font-size: 1rem;
   color: var(--text);
@@ -930,7 +967,7 @@ button:focus-visible {
 }
 
 .pricing-card-pro {
-  border-color: rgba(193, 206, 226, 0.35);
+  border-color: color-mix(in oklch, var(--accent) 30%, var(--surface) 70%);
   background: var(--surface-strong);
 }
 
@@ -1048,7 +1085,7 @@ button:focus-visible {
   }
 }
 
-/* â”€â”€ Auth overlay (modal on top of landing or app) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Auth overlay (modal on top of landing or app) ──────────────────────── */
 
 .auth-overlay {
   position: fixed;
@@ -1114,7 +1151,7 @@ button:focus-visible {
   gap: 0.4rem;
   padding: 0.35rem;
   border-radius: 1rem;
-  background: rgba(193, 206, 226, 0.06);
+  background: color-mix(in oklch, var(--accent) 6%, var(--surface) 94%);
 }
 
 .auth-tab {
@@ -1163,297 +1200,5 @@ button:focus-visible {
   background: rgba(224, 123, 74, 0.1);
   border: 1px solid rgba(224, 123, 74, 0.2);
   margin: 0;
-}
-
-/* â”€â”€ Design refresh â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-:root {
-  --bg: oklch(0.08 0.07 245);
-  --surface: oklch(0.15 0.05 245);
-  --surface-strong: oklch(0.19 0.05 245);
-  --surface-soft: oklch(0.24 0.05 245 / 0.92);
-  --text: oklch(0.95 0.02 240);
-  --muted: oklch(0.72 0.02 240 / 0.66);
-  --accent: oklch(0.78 0.18 232);
-  --accent-soft: oklch(0.58 0.12 232 / 0.18);
-  --border: oklch(0.18 0.04 245 / 0.18);
-  --shadow: 0 28px 70px rgba(0, 0, 0, 0.3);
-}
-
-body {
-  font-family:
-    "Space Grotesk", "IBM Plex Sans", "Segoe UI", Tahoma, Geneva, Verdana,
-    sans-serif;
-  background:
-    radial-gradient(
-      circle at 12% 14%,
-      rgba(109, 136, 216, 0.12),
-      transparent 16%
-    ),
-    radial-gradient(circle at 84% 18%, rgba(17, 31, 59, 0.14), transparent 14%),
-    linear-gradient(180deg, oklch(0.09 0.03 245), oklch(0.07 0.06 245));
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: "Sora", "Space Grotesk", sans-serif;
-}
-
-.landing-hero {
-  position: relative;
-  overflow: visible;
-}
-
-.landing-hero .landing-container > * {
-  position: relative;
-  z-index: 1;
-}
-
-.landing-headline {
-  letter-spacing: -0.05em;
-  max-width: 12ch;
-}
-
-.landing-sub {
-  max-width: 40rem;
-  color: var(--muted);
-}
-
-.landing-cta-row {
-  gap: 1rem;
-}
-
-.hero-panel {
-  min-height: 30rem;
-  overflow: hidden;
-  position: relative;
-  background: var(--surface);
-}
-
-.hero-panel::before,
-.hero-panel::after {
-  display: none;
-}
-
-.hero-copy {
-  gap: 1.5rem;
-}
-
-.hero-note {
-  position: relative;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
-}
-
-.hero-note::before {
-  content: "Performance";
-  position: absolute;
-  bottom: 1.25rem;
-  right: 1.5rem;
-  color: rgba(255, 255, 255, 0.08);
-  font-size: 6rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  opacity: 0.22;
-  pointer-events: none;
-  content: "";
-}
-
-.hero-note .note-title {
-  font-size: 1.1rem;
-}
-
-.hero-pill-row {
-  display: inline-grid;
-  grid-template-columns: repeat(3, max-content);
-}
-
-.hero-pill-row span {
-  background: rgba(135, 173, 238, 0.12);
-  color: var(--text);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.panel {
-  background: rgba(10, 12, 30, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.22);
-}
-
-.panel-head {
-  position: relative;
-  gap: 1.25rem;
-}
-
-.panel-head h2 {
-  letter-spacing: -0.04em;
-}
-
-.panel-head::before {
-  content: "";
-  position: absolute;
-  left: 1.25rem;
-  top: 1.25rem;
-  width: 4rem;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(135, 173, 238, 0.4),
-    transparent
-  );
-}
-
-.panel-head > div {
-  min-width: 0;
-}
-
-.panel-head-actions {
-  align-items: center;
-}
-
-.message-counter {
-  padding: 0.7rem 0.95rem;
-  background: rgba(135, 173, 238, 0.08);
-  border-radius: 999px;
-}
-
-.streak-display {
-  display: inline-grid;
-  grid-template-columns: auto auto;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.85rem 1rem;
-  border-radius: 999px;
-  background: rgba(135, 173, 238, 0.08);
-  border: 1px solid rgba(135, 173, 238, 0.14);
-  animation: pop-in 0.32s ease-out both;
-}
-
-.streak-display span:first-child {
-  font-size: 1.45rem;
-  letter-spacing: -0.05em;
-}
-
-.pr-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.35rem 0.7rem;
-  border-radius: 999px;
-  background: rgba(135, 173, 238, 0.18);
-  color: var(--accent);
-  font-size: 0.75rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  animation: pop-in 0.28s ease-out both;
-}
-
-.toast {
-  position: fixed;
-  left: 50%;
-  bottom: 1.75rem;
-  transform: translate(-50%, 120%);
-  opacity: 0;
-  width: min(36rem, calc(100% - 2rem));
-  max-width: 100%;
-  padding: 1rem 1.25rem;
-  border-radius: 1.25rem;
-  background: rgba(10, 12, 30, 0.96);
-  border: 1px solid rgba(135, 173, 238, 0.18);
-  color: var(--text);
-  box-shadow: 0 28px 64px rgba(0, 0, 0, 0.32);
-  transition:
-    transform 0.32s ease,
-    opacity 0.32s ease;
-  z-index: 160;
-  display: grid;
-  place-items: center;
-}
-
-.toast[data-tone="success"] {
-  border-color: rgba(104, 209, 141, 0.28);
-}
-
-.toast.show {
-  transform: translate(-50%, 0);
-  opacity: 1;
-}
-
-.toast.hide {
-  transform: translate(-50%, 120%);
-  opacity: 0;
-}
-
-@keyframes pop-in {
-  from {
-    opacity: 0;
-    transform: translateY(0.75rem) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-button:active {
-  transform: translateY(1px) scale(0.99);
-}
-
-input,
-select,
-textarea {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  box-shadow: 0 0 0 4px rgba(135, 173, 238, 0.16);
-}
-
-.chart-wrap,
-.body-chart-wrap {
-  min-height: 260px;
-}
-
-.chart-empty-state {
-  min-height: 10rem;
-  display: grid;
-  place-items: center;
-  color: var(--muted);
-  text-align: center;
-  padding: 1.5rem;
-}
-
-.history-list {
-  min-height: 14rem;
-}
-
-.history-entry,
-.message {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.06);
-}
-
-.message.trainer {
-  border-color: rgba(135, 173, 238, 0.1);
-}
-
-.history-entry strong,
-.message strong {
-  color: var(--accent);
-}
-
-.toast {
-  pointer-events: none;
 }
 
